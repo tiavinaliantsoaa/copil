@@ -43,8 +43,12 @@ class AttachmentController extends Controller
             ->with('success', 'Le fichier a été ajouté.');
     }
 
-    public function show(Request $request, Attachment $attachment): BinaryFileResponse
+    public function show(Request $request, Attachment $attachment): BinaryFileResponse|RedirectResponse
     {
+        if (!$request->user() && !$this->isPresentationImage($attachment)) {
+            return redirect()->guest(route('login'));
+        }
+
         abort_unless(Storage::disk('local')->exists($attachment->path), 404);
         $path = Storage::disk('local')->path($attachment->path);
 
@@ -63,6 +67,16 @@ class AttachmentController extends Controller
         $attachment->delete();
 
         return back()->with('success', 'Le fichier a été supprimé.');
+    }
+
+    private function isPresentationImage(Attachment $attachment): bool
+    {
+        if (!$attachment->isImage()) {
+            return false;
+        }
+
+        return $attachment->category === 'graphics'
+            || (bool) preg_match('/^content-[a-z0-9]+-(best|improvement)$/', $attachment->category);
     }
 
     private function authorizeEdit(Request $request, CommunicationReport $report): void

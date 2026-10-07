@@ -104,7 +104,7 @@
     <section class="presentation-slide presentation-cover" data-slide style="background-image: url('{{ asset('images/copil-cover.png') }}')"><div class="presentation-content"><img class="mb-10 h-20 w-auto self-start" src="{{ asset('images/escm-logo.png') }}" alt="ESCM"><h1>Merci<span>Décisions & prochaines étapes</span></h1><p class="mt-8 max-w-4xl text-2xl font-semibold text-zinc-700">{{ $report->summary['copil_decision'] }}</p></div></section>
 
     <nav class="presentation-controls" aria-label="Contrôles de présentation">
-        <a class="btn btn-icon border-zinc-600 bg-zinc-800 text-white" href="{{ route('copil.index', ['period'=>$period->key]) }}" title="Quitter"><i data-lucide="x"></i></a>
+        @auth<a class="btn btn-icon border-zinc-600 bg-zinc-800 text-white" href="{{ route('copil.index', ['period'=>$period->key]) }}" title="Quitter"><i data-lucide="x"></i></a>@endauth
         <button class="btn btn-icon border-zinc-600 bg-zinc-800 text-white" data-slide-prev title="Précédent"><i data-lucide="chevron-left"></i></button>
         <span class="min-w-16 text-center text-xs font-bold" data-slide-counter></span>
         <button class="btn btn-icon border-zinc-600 bg-zinc-800 text-white" data-slide-next title="Suivant"><i data-lucide="chevron-right"></i></button>

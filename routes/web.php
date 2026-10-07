@@ -17,6 +17,9 @@ Route::middleware('guest')->group(function () {
     Route::post('/connexion', [LoginController::class, 'store'])->middleware('throttle:6,1')->name('login.store');
 });
 
+Route::get('/copil/{period:key}/presentation', PresentationController::class)->name('presentation');
+Route::get('/copil/fichiers/{attachment}', [AttachmentController::class, 'show'])->name('attachments.show');
+
 Route::middleware('auth')->group(function () {
     Route::post('/deconnexion', [LoginController::class, 'destroy'])->name('logout');
 
@@ -24,10 +27,8 @@ Route::middleware('auth')->group(function () {
     Route::put('/copil/rapports/{report}/sections/{section}', [ReportController::class, 'updateSection'])->name('reports.sections.update');
 
     Route::post('/copil/rapports/{report}/fichiers', [AttachmentController::class, 'store'])->name('attachments.store');
-    Route::get('/copil/fichiers/{attachment}', [AttachmentController::class, 'show'])->name('attachments.show');
     Route::delete('/copil/fichiers/{attachment}', [AttachmentController::class, 'destroy'])->name('attachments.destroy');
 
-    Route::get('/copil/{period:key}/presentation', PresentationController::class)->name('presentation');
     Route::get('/copil/{period:key}/export.pdf', [ExportController::class, 'pdf'])->name('exports.pdf');
     Route::get('/copil/{period:key}/export.pptx', [ExportController::class, 'pptx'])->name('exports.pptx');
 

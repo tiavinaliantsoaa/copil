@@ -47,6 +47,16 @@ class ReportAccessTest extends TestCase
         $this->actingAs($admin)->put(route('reports.sections.update', [$report, 'meta']), $payload)->assertSessionHasNoErrors();
     }
 
+    public function test_guest_can_open_the_presentation_without_logging_in(): void
+    {
+        [$period] = $this->report('open');
+
+        $this->get(route('presentation', $period))
+            ->assertOk()
+            ->assertSee($period->label)
+            ->assertSee('ESCM COPIL');
+    }
+
     public function test_dashboard_renders_when_a_period_exists(): void
     {
         [$period] = $this->report('open');
