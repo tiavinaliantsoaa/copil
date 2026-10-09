@@ -88,6 +88,14 @@ function initialiseCharts() {
     });
 }
 
+function createId() {
+    if (typeof crypto.randomUUID === 'function') {
+        return crypto.randomUUID();
+    }
+
+    return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
 function initialiseLists() {
     document.querySelectorAll('[data-add-list]').forEach((button) => {
         button.addEventListener('click', () => {
@@ -95,11 +103,16 @@ function initialiseLists() {
             const template = document.getElementById(button.dataset.template);
             if (!list || !template) return;
             const index = Date.now();
-            const uuid = crypto.randomUUID();
+            const uuid = createId();
             const fragment = template.content.cloneNode(true);
-            fragment.querySelectorAll('[name]').forEach((input) => input.name = input.name.replaceAll('__INDEX__', index).replaceAll('__UUID__', uuid));
+            fragment.querySelectorAll('[name]').forEach((input) => {
+                input.name = input.name.replaceAll('__INDEX__', index).replaceAll('__UUID__', uuid);
+                if (input.value.includes('__UUID__')) input.value = input.value.replaceAll('__UUID__', uuid);
+            });
             fragment.querySelectorAll('[data-category-template]').forEach((node) => node.value = node.value.replaceAll('__UUID__', uuid));
             list.appendChild(fragment);
+            const item = list.lastElementChild;
+            item?.scrollIntoView({ block: 'nearest' });
             createIcons({ icons: appIcons });
         });
     });
