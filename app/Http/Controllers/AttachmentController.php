@@ -76,7 +76,8 @@ class AttachmentController extends Controller
         }
 
         return $attachment->category === 'graphics'
-            || (bool) preg_match('/^content-[a-z0-9]+-(best|improvement)$/', $attachment->category);
+            || (bool) preg_match('/^content-[a-z0-9]+-(best|improvement)$/', $attachment->category)
+            || (bool) preg_match('/^tool-/', $attachment->category);
     }
 
     private function authorizeEdit(Request $request, CommunicationReport $report): void
