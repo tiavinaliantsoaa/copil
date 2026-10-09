@@ -6,6 +6,12 @@
 <style>
     .presentation-visuals { display: flex; flex: 1 1 auto; min-height: 0; align-items: center; justify-content: center; gap: 1.25rem; margin-top: 1.25rem; }
     .presentation-visuals img { max-height: 100%; max-width: calc(100% / var(--visual-count) - 1rem); width: auto; height: auto; object-fit: contain; }
+    .presentation-tools-grid { display: grid; flex: 1 1 auto; min-height: 0; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; margin-top: 2vh; align-content: start; }
+    .presentation-tool-column { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; gap: 0.75rem; min-height: 0; }
+    .presentation-tool-captures { display: grid; grid-template-columns: 1fr; gap: 0.75rem; min-height: 0; align-content: start; }
+    .presentation-tool-capture { margin: 0; overflow: hidden; border-radius: 0.375rem; background: #f4f4f5; }
+    .presentation-tool-capture img { display: block; width: 100%; max-height: 18vh; object-fit: contain; }
+    .presentation-tool-divider { border-bottom: 4px solid #d9252a; }
 </style>
 @endpush
 
@@ -93,12 +99,29 @@
                 <div class="mt-6 grid grid-cols-2 gap-5"><div class="bg-zinc-50 p-6"><p class="eyebrow">Offre à promouvoir</p><p class="mt-3 text-2xl font-bold">{{ $report->training['offer_to_promote'] }}</p><p class="mt-5 text-zinc-600">{{ $report->training['priority_audience'] }}</p></div><div class="bg-escm-600 p-6 text-white"><p class="text-xs font-bold uppercase">Décision COPIL</p><p class="mt-3 text-2xl font-bold">{{ $report->training['decision'] }}</p></div></div>
             </div></section>
         @elseif($number === '06')
-            @php
-                $toolVisuals = collect($report->tools)->flatMap(
-                    fn (array $tool) => $attachments->get('tool-'.$tool['id'], collect())->filter(fn ($file) => $file->isImage())
-                )->values();
-            @endphp
-            <section class="presentation-slide" data-slide><div class="presentation-content"><header class="presentation-title"><p>Informatique & outils</p><h2>État des projets</h2></header><div class="mt-[4vh] grid grid-cols-2 gap-4">@foreach(array_slice($report->tools,0,6) as $tool)<article class="bg-zinc-50 p-5"><div class="flex justify-between gap-4"><h3 class="text-xl font-bold">{{ $tool['name'] }}</h3><span class="tag tag-red">{{ $tool['status'] }}</span></div><p class="mt-3 text-sm text-zinc-600">{{ $tool['next_milestone'] }}</p><div class="progress-track mt-5"><div class="progress-bar" style="width: {{ $tool['progress'] }}%"></div></div></article>@endforeach</div>@if($toolVisuals->isNotEmpty())<div class="presentation-visuals" style="--visual-count: {{ min($toolVisuals->count(), 4) }}">@foreach($toolVisuals->take(4) as $file)<img src="{{ route('attachments.show', $file) }}" alt="{{ $file->original_name }}">@endforeach</div>@endif</div></section>
+            <section class="presentation-slide" data-slide><div class="presentation-content">
+                <header class="presentation-title"><p>Informatique & outils</p><h2>État des projets</h2></header>
+                <div class="presentation-tools-grid">
+                    @foreach(array_slice($report->tools, 0, 4) as $tool)
+                        @php $toolCaptures = $attachments->get('tool-'.$tool['id'], collect())->filter(fn ($file) => $file->isImage()); @endphp
+                        <article class="presentation-tool-column">
+                            <div class="bg-zinc-50 p-4">
+                                <div class="flex justify-between gap-4"><h3 class="text-lg font-bold">{{ $tool['name'] }}</h3><span class="tag tag-red">{{ $tool['status'] }}</span></div>
+                                <p class="mt-2 text-sm text-zinc-600">{{ $tool['next_milestone'] }}</p>
+                                <div class="progress-track mt-4"><div class="progress-bar" style="width: {{ $tool['progress'] }}%"></div></div>
+                            </div>
+                            @if($toolCaptures->isNotEmpty())
+                                <div class="presentation-tool-captures">
+                                    @foreach($toolCaptures->take(3) as $file)
+                                        <figure class="presentation-tool-capture"><img src="{{ route('attachments.show', $file) }}" alt="{{ $file->original_name }}"></figure>
+                                    @endforeach
+                                </div>
+                            @endif
+                            <div class="presentation-tool-divider" aria-hidden="true"></div>
+                        </article>
+                    @endforeach
+                </div>
+            </div></section>
         @elseif($number === '07')
             <section class="presentation-slide" data-slide><div class="presentation-content"><header class="presentation-title"><p>Événements</p><h2>Résultats et suites</h2></header><div class="mt-[6vh] grid grid-cols-2 gap-5">@foreach(array_slice($report->events,0,4) as $event)<article class="bg-zinc-50 p-6"><h3 class="text-2xl font-bold">{{ $event['name'] }}</h3><p class="mt-2 text-sm font-semibold text-escm-600">{{ $event['objective'] }}</p><p class="mt-5 text-lg leading-7">{{ $event['results'] }}</p><p class="mt-4 border-t border-zinc-200 pt-4 text-sm text-zinc-600">{{ $event['next_step'] }}</p></article>@endforeach</div></div></section>
         @else
